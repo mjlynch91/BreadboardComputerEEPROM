@@ -41,22 +41,32 @@ dataTemplate = np.array([   MI|CO, RO|II|CE, 0,     0,     0,              0, 0,
                             MI|CO, RO|II|CE, AO|OI, 0,     0,              0, 0, 0,\
                             MI|CO, RO|II|CE, HLT,   0,     0,              0, 0, 0], dtype = 'uint16')
 
-data = np.zeros(size, dtype='uint8')
-for i in range(len(dataTemplate)):
-    #flags ZF = 0 CF = 0
-        data[i]=dataTemplate[i] >> 8
-        data[i+128]=dataTemplate[i]
-    #flags ZF = 0 CF = 1
-        data[i+256]=dataTemplate[i] >> 8
-        data[i+256+128]=dataTemplate[i]
-    #flags ZF = 1 CF = 0
-        data[i+512]=dataTemplate[i] >> 8
-        data[i+512+128]=dataTemplate[i]
-    #flags ZF = 1 CF = 1
-        data[i+768]=dataTemplate[i] >> 8
-        data[i+768+128]=dataTemplate[i]
-print(data)
+dataZ0C0 = np.copy(dataTemplate)
+dataZ0C1 = np.copy(dataTemplate)
+dataZ0C1[58] = IO|J
+dataZ1C0 = np.copy(dataTemplate)
+dataZ1C0[66] = IO|J
+dataZ1C1 = np.copy(dataTemplate)
+dataZ1C1[58] = IO|J
+dataZ1C1[66] = IO|J
+
+
+data_8bit = np.zeros(size, dtype='uint8')
+for i in range(0,127):
+    data_8bit[i] = dataZ0C0[i] >> 8
+    data_8bit[i+128] = dataZ0C0[i]
+
+    data_8bit[i+256] = dataZ0C1[i] >> 8
+    data_8bit[i+256+128] = dataZ0C1[i]
+
+    data_8bit[i+512] = dataZ1C0[i] >> 8
+    data_8bit[i+512+128] = dataZ1C0[i]
+
+    data_8bit[i+768] = dataZ1C1[i] >> 8
+    data_8bit[i+768+128] = dataZ1C1[i]
+                
+print(data_8bit)
 
 f=open("binfile.bin","wb")
-f.write(data)
+f.write(data_8bit)
 f.close()
